@@ -1,0 +1,9 @@
+.centeredContainer {
+    display: flex;
+    flex-direction: column;
+    width: 80%;
+    height: 60%;
+    margin: auto;
+  }
+
+  /* Add screen sizes to adjust width*/

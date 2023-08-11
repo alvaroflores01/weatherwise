@@ -1,0 +1,12 @@
+/* Title and weekly container */
+.titleContainer {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 1rem;
+  }
+  
+  .titleText {
+    display: inline-block;
+    font-size: 10rem;
+    color: white;
+  }

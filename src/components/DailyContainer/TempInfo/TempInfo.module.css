@@ -1,0 +1,11 @@
+.tempInfo {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    flex-grow:5;
+}
+.tempInfo h1 {
+    font-size: 5rem;
+}

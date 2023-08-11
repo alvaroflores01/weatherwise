@@ -1,0 +1,21 @@
+/* DAILY CONTAINER STYLE */
+.dailyContainer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(255, 255, 255, 0.951);
+    /* border: 1px red solid; */
+    margin-left: .5rem;
+    width: 100%;
+}
+
+/* DAILY CONTAINER CONTENT */
+/* content container */
+.contentContainer {
+    display: flex;
+    flex-direction: column;
+    /* border: 1px green solid; */
+    height: 90%;
+    width: 95%;
+}
+

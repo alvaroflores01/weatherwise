@@ -1,0 +1,9 @@
+.styles {
+    color: white;
+    margin-top: 20px;
+    display:flex;
+    justify-content: end;
+}
+.styles h1 {
+    font-size: 2rem;
+}

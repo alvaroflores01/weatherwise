@@ -1,10 +1,15 @@
-import "./App.css";
+import AppCSS from "./App.css";
 import React, { useState, useEffect } from "react";
 import axios from "axios";
+
+import Contain from "./components/Contain/Contain";
 function App() {
   const [browserData, setBrowserData] = useState({});
-  const [currentWeather, setCurrentWeather] = useState({});
-  const [forecastData, setForecastData] = useState({});
+  const [locationData, setLocationData] = useState([]);
+  const [dateData, setDateData] = useState();
+  const [currentWeatherData, setCurrentWeatherData] = useState({});
+  const [forecastData, setForecastData] = useState([]);
+  const [weeklyWeatherData, setWeeklyWeatherData] = useState(undefined);
   useEffect(() => {
     getDateInfo();
     getCoordinates();
@@ -14,40 +19,75 @@ function App() {
     getWeather();
   }, [browserData.latitude]);
 
-  const getLocation = () => {
+  // const updateWeeklyData = () => {
+  //   if (currentWeatherData && forecastData !== []) {
+  //     setWeeklyWeatherData(() => [currentWeatherData, ...forecastData]);
+  //   }
+  // };
+
+  const getLocation = async () => {
     if (browserData.latitude & browserData.longitude) {
-      axios
-        .get(
-          `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=AIzaSyDJGuxZPfDtp1Y7QIBftDGvcqK0jkbyJsc&result_type=locality`
-        )
-        .then((res) => {
-          const [city, state] =
-            //city , state
-            [
-              res.data.results[0].address_components[0].long_name,
-              res.data.results[0].address_components[2].short_name,
-            ];
-          console.log(city);
-          setBrowserData((prev) => ({
-            ...prev,
-            location: { city: city, state: state },
-          }));
-        });
+      const res = await axios.get(
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=AIzaSyDJGuxZPfDtp1Y7QIBftDGvcqK0jkbyJsc&result_type=locality`
+      );
+      const [city, state] = [
+        `${res.data.results[0].address_components[0].long_name},`,
+        res.data.results[0].address_components[2].short_name,
+      ];
+      setLocationData((prev) => [city, state]);
     }
   };
   const getDateInfo = () => {
-    const today = new Date();
-    const [month, day, year] = [
-      today.getMonth(),
-      today.getDate(),
-      today.getFullYear(),
-    ];
-    const [hour, minute] = [today.getHours(), today.getMinutes()];
-    setBrowserData((prev) => ({
-      ...prev,
-      date: { month: month, day: day, year: year },
-      time: { hour: hour, minute: minute },
-    }));
+    console.log("Running getDateInfo");
+    const day = new Date();
+    // const today = new Date();
+    const findDayOfWeek = (num) => {
+      const week = [
+        "Sunday",
+        "Monday",
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday",
+      ];
+      return week[num];
+    };
+    const findMonth = (num) => {
+      const month = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sept",
+        "Nov",
+        "Dec",
+      ];
+      return month[num];
+    };
+    const weekDateInfo = [];
+    for (let i = 0; i < 5; i++) {
+      let day = new Date();
+      day.setDate(day.getDate() + i);
+      weekDateInfo.push({
+        month: findMonth(day.getMonth()),
+        day: day.getDate(),
+        year: day.getFullYear(),
+        dayOfWeek: findDayOfWeek(day.getDay()),
+      });
+    }
+    setDateData(weekDateInfo);
+
+    // const [month, day, year, dayOfWeek] = [
+    //   day.getMonth(),
+    //   day.getDate(),
+    //   day.getFullYear(),
+    //   findDayOfWeek(today.getDay()),
+    // ];
   };
   const getCoordinates = () => {
     // Get Coordinates
@@ -66,7 +106,6 @@ function App() {
             latitude: latitude.toFixed(2),
             longitude: longitude.toFixed(2),
           }));
-          console.log(`Your current location is: ${latitude}, ${longitude}`);
         },
         (error) => {
           // IF ERROR:
@@ -77,36 +116,58 @@ function App() {
       console.log("Geolocation is not supported by this browser.");
     }
   };
-  const getWeather = () => {
+  const getWeather = async () => {
     if (browserData.latitude & browserData.longitude) {
-      axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
-        )
-        .then((res) => {
-          console.log("running");
-          setCurrentWeather(res.data);
-        });
-      axios
-        .get(
-          `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
-        )
-        .then((res) => {
-          const forecastData = res.data.list;
-          let nextFourDays = [
-            forecastData[3],
-            forecastData[11],
-            forecastData[19],
-            forecastData[27],
-          ];
-          setForecastData(nextFourDays);
-        });
+      let curr = await axios.get(
+        `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
+      );
+      let ffore = await axios.get(
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
+      );
+      let nextFourDays = [
+        ffore.data.list[3],
+        ffore.data.list[11],
+        ffore.data.list[19],
+        ffore.data.list[27],
+      ];
+      let array = [curr.data, ...nextFourDays];
+      setWeeklyWeatherData(array);
+      // console.log(weeklyWeatherData);
     }
   };
   return (
-    <div className="App">
-      <h1>Hello World</h1>
+    <div className="container">
+      <Contain
+        title="weatherwise"
+        locationData={locationData}
+        weeklyWeatherData={weeklyWeatherData}
+        dateData={dateData}
+      />
     </div>
   );
 }
 export default App;
+
+// const getDateInfo = () => {
+//   // const day = newDate()
+//   const today = new Date();
+//   const findDayOfWeek = (num) => {
+//     const week = [
+//       "Sunday",
+//       "Monday",
+//       "Tuesday",
+//       "Wednesday",
+//       "Thursday",
+//       "Friday",
+//       "Saturday",
+//     ];
+//     return week[num];
+//   };
+
+//   const [month, day, year, dayOfWeek] = [
+//     today.getMonth(),
+//     today.getDate(),
+//     today.getFullYear(),
+//     findDayOfWeek(today.getDay()),
+//   ];
+// };
