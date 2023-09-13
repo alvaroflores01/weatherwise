@@ -10,6 +10,7 @@ function App() {
   const [currentWeatherData, setCurrentWeatherData] = useState({});
   const [forecastData, setForecastData] = useState([]);
   const [weeklyWeatherData, setWeeklyWeatherData] = useState(undefined);
+  console.log(process.env.REACT_APP_GOOGLE_KEY);
   useEffect(() => {
     getDateInfo();
     getCoordinates();
@@ -22,7 +23,7 @@ function App() {
   const getLocation = async () => {
     if (browserData.latitude & browserData.longitude) {
       const res = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=${process.env.GOOGLE_KEY}&result_type=locality`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=${process.env.REACT_APP_GOOGLE_KEY}&result_type=locality`
       );
       const [city, state] = [
         `${res.data.results[0].address_components[0].long_name},`,
@@ -106,10 +107,10 @@ function App() {
   const getWeather = async () => {
     if (browserData.latitude & browserData.longitude) {
       let curr = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.WEATHER_KEY}&units=imperial`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.REACT_APP_WEATHER_KEY}&units=imperial`
       );
       let ffore = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.WEATHER_KEY}&units=imperial`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.REACT_APP_WEATHER_KEY}&units=imperial`
       );
       let nextFourDays = [
         ffore.data.list[3],
@@ -134,3 +135,4 @@ function App() {
   );
 }
 export default App;
+
