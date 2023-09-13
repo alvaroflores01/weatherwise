@@ -19,16 +19,10 @@ function App() {
     getWeather();
   }, [browserData.latitude]);
 
-  // const updateWeeklyData = () => {
-  //   if (currentWeatherData && forecastData !== []) {
-  //     setWeeklyWeatherData(() => [currentWeatherData, ...forecastData]);
-  //   }
-  // };
-
   const getLocation = async () => {
     if (browserData.latitude & browserData.longitude) {
       const res = await axios.get(
-        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=AIzaSyDJGuxZPfDtp1Y7QIBftDGvcqK0jkbyJsc&result_type=locality`
+        `https://maps.googleapis.com/maps/api/geocode/json?latlng=${browserData.latitude},${browserData.longitude}&key=${process.env.GOOGLE_KEY}&result_type=locality`
       );
       const [city, state] = [
         `${res.data.results[0].address_components[0].long_name},`,
@@ -81,13 +75,6 @@ function App() {
       });
     }
     setDateData(weekDateInfo);
-
-    // const [month, day, year, dayOfWeek] = [
-    //   day.getMonth(),
-    //   day.getDate(),
-    //   day.getFullYear(),
-    //   findDayOfWeek(today.getDay()),
-    // ];
   };
   const getCoordinates = () => {
     // Get Coordinates
@@ -119,10 +106,10 @@ function App() {
   const getWeather = async () => {
     if (browserData.latitude & browserData.longitude) {
       let curr = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.WEATHER_KEY}&units=imperial`
       );
       let ffore = await axios.get(
-        `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=55d07e64f55f6f12c5970c5780354a90&units=imperial`
+        `https://api.openweathermap.org/data/2.5/forecast?lat=${browserData.latitude}&lon=${browserData.longitude}&appid=${process.env.WEATHER_KEY}&units=imperial`
       );
       let nextFourDays = [
         ffore.data.list[3],
@@ -132,9 +119,9 @@ function App() {
       ];
       let array = [curr.data, ...nextFourDays];
       setWeeklyWeatherData(array);
-      // console.log(weeklyWeatherData);
     }
   };
+
   return (
     <div className="container">
       <Contain
@@ -147,27 +134,3 @@ function App() {
   );
 }
 export default App;
-
-// const getDateInfo = () => {
-//   // const day = newDate()
-//   const today = new Date();
-//   const findDayOfWeek = (num) => {
-//     const week = [
-//       "Sunday",
-//       "Monday",
-//       "Tuesday",
-//       "Wednesday",
-//       "Thursday",
-//       "Friday",
-//       "Saturday",
-//     ];
-//     return week[num];
-//   };
-
-//   const [month, day, year, dayOfWeek] = [
-//     today.getMonth(),
-//     today.getDate(),
-//     today.getFullYear(),
-//     findDayOfWeek(today.getDay()),
-//   ];
-// };
